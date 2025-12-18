@@ -1,0 +1,26 @@
+# OpenHands Configuration for AMD LLM
+
+[core]
+workspace_base = "/home/upandey/aiter4openhands"
+run_as_openhands = false
+runtime = "cli"
+max_iterations = 100
+debug = true
+
+[llm]
+model = "amd/claude-sonnet-4.5"
+temperature = 0.0
+max_output_tokens = 16000
+num_retries = 5
+retry_min_wait = 8
+retry_max_wait = 60
+drop_params = true
+native_tool_calling = false
+
+[agent]
+enable_browsing = false
+enable_jupyter = false
+cli_mode = true
+
+[sandbox]
+timeout = 300

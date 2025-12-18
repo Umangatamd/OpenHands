@@ -9,6 +9,7 @@ from openhands.core.config.llm_config import LLMConfig
 from openhands.core.config.openhands_config import OpenHandsConfig
 from openhands.core.logger import openhands_logger as logger
 from openhands.llm.llm import LLM
+from openhands.llm.amd_llm import AmdLLM, is_amd_model
 
 
 class RegistryEvent(BaseModel):
@@ -45,12 +46,22 @@ class LLMRegistry:
     def _create_new_llm(
         self, service_id: str, config: LLMConfig, with_listener: bool = True
     ) -> LLM:
-        if with_listener:
-            llm = LLM(
-                service_id=service_id, config=config, retry_listener=self.retry_listner
-            )
+        # Check if this is an AMD model and use AmdLLM if so
+        if is_amd_model(config.model) or (config.base_url and 'llm-api.amd.com' in config.base_url):
+            logger.info(f"Using AMD LLM for model: {config.model}")
+            if with_listener:
+                llm = AmdLLM(
+                    service_id=service_id, config=config, retry_listener=self.retry_listner
+                )
+            else:
+                llm = AmdLLM(service_id=service_id, config=config)
         else:
-            llm = LLM(service_id=service_id, config=config)
+            if with_listener:
+                llm = LLM(
+                    service_id=service_id, config=config, retry_listener=self.retry_listner
+                )
+            else:
+                llm = LLM(service_id=service_id, config=config)
         self.service_to_llm[service_id] = llm
         self.notify(RegistryEvent(llm=llm, service_id=service_id))
         return llm

@@ -1,0 +1,43 @@
+You are a GPU kernel optimization expert. Your goal is to create the MOST optimized version of the Triton MOE MXFP4 kernel possible.
+
+MAIN KERNEL: /home/upandey/aiter4openhands/aiter/aiter/ops/triton/moe_op_mxfp4.py
+KERNEL IMPLEMENTATION: /home/upandey/aiter4openhands/aiter/aiter/ops/triton/_triton_kernels/moe_op_mxfp4.py
+
+WORKFLOW:
+1. Read and understand the kernel
+2. Run baseline benchmark to establish starting performance
+3. Make an optimization
+4. Benchmark again to measure impact
+5. REPEAT steps 3-4 as many times as needed until you've maximized performance
+6. Only submit when you're confident you've achieved the best possible optimization
+
+BENCHMARK COMMAND:
+cd /home/upandey/aiter && python simple_moe_bench.py --M 32 64 128 256
+
+TARGET: AMD Instinct MI325X (gfx942)
+GOAL: Achieve the highest possible TFLOPS and lowest latency
+
+IMPORTANT: 
+- You can iterate as many times as you want
+- Try any optimization strategies you think might help
+- Keep track of what works and what doesn't
+- Don't stop until you've exhausted optimization opportunities
+- Compare each change against your best result so far
+
+REPORTING:
+Create and maintain a report file at /home/upandey/aiter4openhands/optimization_report.txt
+After each optimization attempt, update this file with:
+- What optimization you tried
+- Baseline avg latency (before)
+- New avg latency (after)  
+- Speedup = baseline_avg_latency / new_avg_latency
+- Whether you kept or reverted the change
+
+Format each entry like:
+---
+Optimization #N: [description]
+Baseline Latency: X.XX ms
+New Latency: Y.YY ms
+Speedup: Z.ZZx
+Status: KEPT / REVERTED
+---
