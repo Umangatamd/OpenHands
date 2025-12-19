@@ -1,0 +1,61 @@
+Test the kernel optimization tools by running this bash command:
+
+```bash
+/usr/bin/python3.12 /home/upandey/test_api_key.py
+```
+
+Then run this more complete test:
+
+```bash
+/usr/bin/python3.12 << 'EOF'
+import sys
+sys.path.insert(0, "/home/upandey/OpenHands-dev/openhands/runtime/plugins/agent_skills")
+from kernel_tools import (
+    evaluate_kernel_quality,
+    reflect_on_kernel_result,
+    get_optimization_memory,
+    add_optimization_attempt,
+    should_stop_optimizing,
+    get_best_result
+)
+
+# Initialize memory
+mem = get_optimization_memory(reset=True, target_speedup=1.5, max_attempts=3)
+print(f"Memory: {mem}")
+
+# Test kernel
+kernel = """
+@triton.autotune(configs=[triton.Config({'BLOCK': 64}), triton.Config({'BLOCK': 128})], key=['N'])
+@triton.jit
+def add(x, y, out, N, BLOCK: tl.constexpr):
+    pid = tl.program_id(0)
+    offs = pid * BLOCK + tl.arange(0, BLOCK)
+    mask = offs < N
+    tl.store(out + offs, tl.load(x + offs, mask=mask) + tl.load(y + offs, mask=mask), mask=mask)
+"""
+
+# Evaluate
+print("\n--- Evaluating kernel ---")
+eval_result = evaluate_kernel_quality(kernel, verbose=True)
+
+# Simulate test result and reflect
+print("\n--- Reflecting on result ---")
+add_optimization_attempt(strategy="baseline", speedup=1.1, correctness="passed", eval_score=eval_result.get('total_score', 0))
+reflection = reflect_on_kernel_result(
+    kernel_code=kernel,
+    test_output="Speedup: 1.1x",
+    speedup=1.1,
+    correctness_status="passed",
+    verbose=True
+)
+
+# Check stop
+stop, reason = should_stop_optimizing()
+print(f"\nShould stop: {stop}, Reason: {reason}")
+print(f"Best result: {get_best_result()}")
+print("\n✅ ALL KERNEL TOOLS WORKING!")
+EOF
+```
+
+Report the results and finish.
+

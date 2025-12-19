@@ -24,6 +24,19 @@ except ImportError:
     # If repo_ops is not available, we just skip importing it.
     pass
 
+# Kernel optimization tools for Triton/AMD GPU development
+try:
+    from openhands.runtime.plugins.agent_skills import kernel_tools
+
+    import_functions(
+        module=kernel_tools, function_names=kernel_tools.__all__, target_globals=globals()
+    )
+
+    __all__ += kernel_tools.__all__
+except ImportError:
+    # If kernel_tools is not available (e.g., litellm not installed), skip it.
+    pass
+
 
 DOCUMENTATION = ''
 for func_name in __all__:

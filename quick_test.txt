@@ -1,0 +1,8 @@
+Run this command and report the output:
+
+```bash
+/usr/bin/python3.12 /home/upandey/test_api_key.py
+```
+
+Then finish.
+

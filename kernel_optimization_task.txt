@@ -1,43 +1,43 @@
-You are a GPU kernel optimization expert. Your goal is to create the MOST optimized version of the Triton MOE MXFP4 kernel possible.
+TASK: Test the kernel optimization tools and optimize a GEMM kernel.
 
-MAIN KERNEL: /home/upandey/aiter4openhands/aiter/aiter/ops/triton/moe_op_mxfp4.py
-KERNEL IMPLEMENTATION: /home/upandey/aiter4openhands/aiter/aiter/ops/triton/_triton_kernels/moe_op_mxfp4.py
+You have access to kernel optimization tools via IPython. Here's how to use them:
 
-WORKFLOW:
-1. Read and understand the kernel
-2. Run baseline benchmark to establish starting performance
-3. Make an optimization
-4. Benchmark again to measure impact
-5. REPEAT steps 3-4 as many times as needed until you've maximized performance
-6. Only submit when you're confident you've achieved the best possible optimization
+## STEP 1: Test the tools work
+Run this in IPython to verify the tools are available:
+```python
+from openhands.runtime.plugins.agent_skills.kernel_tools import (
+    evaluate_kernel_quality,
+    reflect_on_kernel_result,
+    get_optimization_memory,
+    add_optimization_attempt,
+    should_stop_optimizing,
+    get_best_result
+)
+print("Kernel tools loaded successfully!")
+```
 
-BENCHMARK COMMAND:
-cd /home/upandey/aiter && python simple_moe_bench.py --M 32 64 128 256
+## STEP 2: Initialize optimization memory
+```python
+mem = get_optimization_memory(reset=True, target_speedup=1.2, max_attempts=5)
+print(mem)
+```
 
-TARGET: AMD Instinct MI325X (gfx942)
-GOAL: Achieve the highest possible TFLOPS and lowest latency
+## STEP 3: Read and evaluate a kernel
+Read the GEMM kernel from the test file and evaluate it:
+- Test file location: /home/upandey/kernelgen/openevolve/TriVolve/aiter/op_tests/test_gemm_a8w8.py
+- Look for Triton kernel code in the aiter library
 
-IMPORTANT: 
-- You can iterate as many times as you want
-- Try any optimization strategies you think might help
-- Keep track of what works and what doesn't
-- Don't stop until you've exhausted optimization opportunities
-- Compare each change against your best result so far
+## STEP 4: Run the test to get baseline
+```bash
+cd /home/upandey/kernelgen/openevolve/TriVolve/aiter/op_tests
+python test_gemm_a8w8.py -mnk 1024,4096,1024 2>&1 | head -50
+```
 
-REPORTING:
-Create and maintain a report file at /home/upandey/aiter4openhands/optimization_report.txt
-After each optimization attempt, update this file with:
-- What optimization you tried
-- Baseline avg latency (before)
-- New avg latency (after)  
-- Speedup = baseline_avg_latency / new_avg_latency
-- Whether you kept or reverted the change
+## STEP 5: Record the attempt and reflect
+Use `add_optimization_attempt()` and `reflect_on_kernel_result()` to analyze.
 
-Format each entry like:
----
-Optimization #N: [description]
-Baseline Latency: X.XX ms
-New Latency: Y.YY ms
-Speedup: Z.ZZx
-Status: KEPT / REVERTED
----
+## STEP 6: Check if should continue
+Use `should_stop_optimizing()` and `get_best_result()`.
+
+GOAL: Verify the kernel optimization tools work correctly. 
+You don't need to actually optimize anything - just test that the tools function properly.
